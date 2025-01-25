@@ -1,0 +1,30 @@
+name: Build DEB
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up DEB build environment
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential devscripts dh-make
+          mkdir -p cpta-deb/usr/local/bin
+          cp ./lab1.sh cpta-deb/usr/local/bin/
+          mkdir cpta-deb/DEBIAN
+          echo "Package: cpta" > cpta-deb/DEBIAN/control
+          echo "Version: 1.0" >> cpta-deb/DEBIAN/control
+          echo "Architecture: amd64" >> cpta-deb/DEBIAN/control
+          echo "Depends: bash" >> cpta-deb/DEBIAN/control
+          echo "Description: Script that will calculate the amount of files exluding directories and links in /etc directory" >> cpta-deb/DEBIAN/control
+
+      - name: Build DEB
+        run: |
+          dpkg-deb --build cpta-deb
